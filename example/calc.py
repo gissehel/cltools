@@ -3,11 +3,12 @@
 import sys
 from calclib import Calc
 from cltools import CLRunner
-
+from supertools import superable
 
 @CLRunner.runnable()
+@superable
 class CalcTool(object) :
-    
+    '''A simple command-line wrapper for calclib'''    
     def __init__(self) :
         self._calc = Calc()
 
@@ -40,6 +41,10 @@ class CalcTool(object) :
         value = self._calc.mult(value1, value2)
         self.status("Result : [%s]" % (value,))
 
+    @CLRunner.command()
+    def help(self, args=[], kwargs={}) :
+        '''Get this help'''
+        self.__super.help()
 
 if __name__ == '__main__' :
     calctool = CalcTool()
