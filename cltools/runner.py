@@ -3,7 +3,7 @@
 import time
 # import yaml
 
-from cltools.runnable import CLRunnable
+from .runnable import CLRunnable
 
 class CLRunner(object) :
     """A class that provide decorators to transform a class into a command line tool"""

@@ -3,8 +3,9 @@
 import sys
 import os
 from supertools import superable
-from cltools.i18n import _
-from cltools.exit_exception import CLExitException
+from .i18n import _
+from .exceptions import CLExitException
+from .exceptions import CLInterruptException
 
 @superable
 class CLRunnable(object) :
@@ -19,10 +20,12 @@ class CLRunnable(object) :
     def error(self, message) :
         sys.stderr.write((_(u"Error : %s\n") % (message,)).encode('utf-8'))
 
-
     def errorexit(self, message) :
         self.error(message)
         raise CLExitException()
+
+    def interruptexit(self) :
+        raise CLInterruptException()
 
     def help(self,args=[],kwargs={}) :
         tool_name = self._tool_name 
@@ -31,7 +34,7 @@ class CLRunnable(object) :
         else :
             tool_name = tool_name + ' '
 
-        print _("Usage: %sCOMMAND_NAME [OPTION] [VALUES]") % (tool_name,)
+        print _("Usage: %sCOMMAND_NAME [OPTIONS] [VALUES]") % (tool_name,)
         if self._cl_params['doc'] is not None :
             print self._cl_params['doc']
         print ''
@@ -49,11 +52,34 @@ class CLRunnable(object) :
             names = sorted(set(self._cl_params['params'][param_name]['name'] for param_name in self._cl_params['params']))
             for name in names :
                 param = self._cl_params['params'][name]
-                print '    --%-18s %-40s' % (name, param['doc'] or '')
+                namevalue = name
+                if param['need_value'] :
+                    namevalue = _('%s=VALUE') % (name,)
+                print '    --%-18s %-40s' % (namevalue, param['doc'] or '')
                 if len(param['aliases'])>1 :
                     print '%s (%s)' % (' '*24,','.join(sorted(['-','--'][int(len(alias)>1)]+alias for alias in param['aliases'])))
 
             print ''
+
+    def help_on_command(self, command, **kwargs) :
+        """Get help on a specific command (typically for --help param)"""
+        print _("Command: %s [OPTIONS] [VALUES]") % (command['name'],)
+        if command['doc'] is not None :
+            print command['doc']
+        print ''
+        if len(command['params'])>0 :
+            print 'Command parameters:'
+            names = sorted(set(command['params'][param_name]['name'] for param_name in command['params']))
+            for name in names :
+                param = command['params'][name]
+                namevalue = name
+                if param['need_value'] :
+                    namevalue = _('%s=VALUE') % (name,)
+                print '    --%-18s %-40s' % (namevalue, param['doc'] or '')
+                if len(param['aliases'])>1 :
+                    print '%s (%s)' % (' '*24,','.join(sorted(['-','--'][int(len(alias)>1)]+alias for alias in param['aliases'])))
+            print ''
+        self.interruptexit()
 
     def parse(self,args) :
         if len(args) == 0 :
@@ -128,7 +154,7 @@ class CLRunnable(object) :
                     (prev_arg_letter,prev_arg,prev_param) = needed_arguments[0]
                     self.errorexit(_("Switch [-%s] need parameter in [%s]") % (prev_arg_letter,prev_arg))
                 for code, name, value in parameter_hooks :
-                    code(self, args=ordered_args, kwargs=dict_args, name=name, value=value)
+                    code(self, args=ordered_args, kwargs=dict_args, name=name, value=value, command=command)
                 command['code'](self,args=ordered_args,kwargs=dict_args)
             else :
                 self.help()
@@ -139,5 +165,7 @@ class CLRunnable(object) :
             self.parse(args)
         except CLExitException :
             return False
+        except CLInterruptException :
+            return True
         return True
 

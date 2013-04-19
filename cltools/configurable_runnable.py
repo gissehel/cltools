@@ -4,8 +4,8 @@ import os
 import json
 
 from supertools import superable
-# from cltools.i18n import _
-from cltools.runnable import CLRunnable
+# from .i18n import _
+from .runnable import CLRunnable
 
 @superable
 class ConfigurableCLRunnable(CLRunnable) :
