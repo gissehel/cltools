@@ -4,7 +4,7 @@
 from setuptools import setup, find_packages
 
 setup(name='cltools',
-      version='0.3.0',
+      version='0.3.1',
       description='Set of decorators of to create transform a class into a command-line tool.',
       author='Arthibus Gisséhel',
       author_email='public-dev-cltools@gissehel.org',
@@ -12,7 +12,7 @@ setup(name='cltools',
       packages=['cltools'],
       license='MIT',
       keywords='commandline tools cltools decorator',
-      long_description=open('README.md').read(),
+      long_description=open('README.rst').read(),
       install_requires=['supertools'],
       classifiers=[
           'Development Status :: 4 - Beta',

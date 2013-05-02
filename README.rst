@@ -16,9 +16,7 @@ simple example :
 ----------------
 
 Imagine, you've got a simple class that make tasks, and you want to make a command line tool
-with that. Let's say, it's a calculator module ``calclib.py`` :
-
-::
+with that. Let's say, it's a calculator module ``calclib.py``::
     
     #:/usr/bin/env python
     
@@ -30,10 +28,8 @@ with that. Let's say, it's a calculator module ``calclib.py`` :
         def mult(self, value1, value2) :
             return value1*value2
 
-Then, we will write a simple class and transform into a runnable tool :
+Then, we will write a simple class and transform into a runnable tool::
 
-::
-    
     #!/usr/bin/env python
     
     import sys
@@ -87,10 +83,8 @@ Then, we will write a simple class and transform into a runnable tool :
         if not(calctool.run( sys.argv )) :
             sys.exit(1)
 
-Now we can test our command line tool :
+Now we can test our command line tool::
 
-::
-    
     $ ./calc.py
     Usage: calc.py COMMAND_NAME [OPTION] [VALUES]
     A simple command-line wrapper for calclib
