@@ -27,9 +27,9 @@ class CLRunnable(object) :
     def interruptexit(self) :
         raise CLInterruptException()
 
-    def __print_general_parameters(self) :
+    def __print_global_options(self) :
         if len(self._cl_params['params'])>0 :
-            print 'Global options:'
+            print _('Global options:')
             names = sorted(set(self._cl_params['params'][param_name]['name'] for param_name in self._cl_params['params']))
             for name in names :
                 param = self._cl_params['params'][name]
@@ -40,6 +40,24 @@ class CLRunnable(object) :
                 if len(param['aliases'])>1 :
                     print '%s (%s)' % (' '*24,','.join(sorted(['-','--'][int(len(alias)>1)]+alias for alias in param['aliases'])))
             print ''
+
+    def __print_command_options(self, command, print_command_name=False) :
+        if len(command['params'])>0 :
+            if print_command_name :
+                print _('%s options:') % (command['name'],)
+            else :
+                print _('Command options:')
+            names = sorted(set(command['params'][param_name]['name'] for param_name in command['params']))
+            for name in names :
+                param = command['params'][name]
+                namevalue = name
+                if param['need_value'] :
+                    namevalue = _('%s=VALUE') % (name,)
+                print '    --%-18s %-40s' % (namevalue, param['doc'] or '')
+                if len(param['aliases'])>1 :
+                    print '%s (%s)' % (' '*24,','.join(sorted(['-','--'][int(len(alias)>1)]+alias for alias in param['aliases'])))
+            print ''
+        
 
     def help(self,args=[],kwargs={}) :
         tool_name = self._tool_name 
@@ -61,27 +79,23 @@ class CLRunnable(object) :
                 if len(command['aliases'])>1 :
                     print '%s (%s)' % (' '*24,','.join(sorted(command['aliases'])))
             print ''
-        self.__print_general_parameters()
+        self.__print_global_options()
 
     def help_on_command(self, command, **kwargs) :
         """Get help on a specific command (typically for --help global param)"""
-        print _("Command: %s [OPTIONS] [VALUES]") % (command['name'],)
-        if command['doc'] is not None :
-            print command['doc']
-        print ''
-        if len(command['params'])>0 :
-            print 'Command options:'
-            names = sorted(set(command['params'][param_name]['name'] for param_name in command['params']))
-            for name in names :
-                param = command['params'][name]
-                namevalue = name
-                if param['need_value'] :
-                    namevalue = _('%s=VALUE') % (name,)
-                print '    --%-18s %-40s' % (namevalue, param['doc'] or '')
-                if len(param['aliases'])>1 :
-                    print '%s (%s)' % (' '*24,','.join(sorted(['-','--'][int(len(alias)>1)]+alias for alias in param['aliases'])))
+        if command['name'] != 'help' :
+            print _("Command: [GLOBAL OPTIONS] %s [OPTIONS] [VALUES]") % (command['name'],)
+            if command['doc'] is not None :
+                print command['doc']
             print ''
-        self.__print_general_parameters()
+            self.__print_command_options(command, print_command_name=False)
+            self.__print_global_options()
+        else :
+            CLRunnable.help(self)
+            command_names = sorted(set(self._cl_params['commands'][command_name]['name'] for command_name in self._cl_params['commands']))
+            for command_name in command_names :
+                self.__print_command_options(self._cl_params['commands'][command_name], print_command_name=True)
+
         self.interruptexit()
 
     def parse(self,args) :
