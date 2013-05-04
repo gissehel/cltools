@@ -27,6 +27,20 @@ class CLRunnable(object) :
     def interruptexit(self) :
         raise CLInterruptException()
 
+    def __print_general_parameters(self) :
+        if len(self._cl_params['params'])>0 :
+            print 'General parameters:'
+            names = sorted(set(self._cl_params['params'][param_name]['name'] for param_name in self._cl_params['params']))
+            for name in names :
+                param = self._cl_params['params'][name]
+                namevalue = name
+                if param['need_value'] :
+                    namevalue = _('%s=VALUE') % (name,)
+                print '    --%-18s %-40s' % (namevalue, param['doc'] or '')
+                if len(param['aliases'])>1 :
+                    print '%s (%s)' % (' '*24,','.join(sorted(['-','--'][int(len(alias)>1)]+alias for alias in param['aliases'])))
+            print ''
+
     def help(self,args=[],kwargs={}) :
         tool_name = self._tool_name 
         if tool_name is None :
@@ -47,22 +61,10 @@ class CLRunnable(object) :
                 if len(command['aliases'])>1 :
                     print '%s (%s)' % (' '*24,','.join(sorted(command['aliases'])))
             print ''
-        if len(self._cl_params['params'])>0 :
-            print 'General parameters:'
-            names = sorted(set(self._cl_params['params'][param_name]['name'] for param_name in self._cl_params['params']))
-            for name in names :
-                param = self._cl_params['params'][name]
-                namevalue = name
-                if param['need_value'] :
-                    namevalue = _('%s=VALUE') % (name,)
-                print '    --%-18s %-40s' % (namevalue, param['doc'] or '')
-                if len(param['aliases'])>1 :
-                    print '%s (%s)' % (' '*24,','.join(sorted(['-','--'][int(len(alias)>1)]+alias for alias in param['aliases'])))
-
-            print ''
+        self.__print_general_parameters()
 
     def help_on_command(self, command, **kwargs) :
-        """Get help on a specific command (typically for --help param)"""
+        """Get help on a specific command (typically for --help global param)"""
         print _("Command: %s [OPTIONS] [VALUES]") % (command['name'],)
         if command['doc'] is not None :
             print command['doc']
@@ -79,6 +81,7 @@ class CLRunnable(object) :
                 if len(param['aliases'])>1 :
                     print '%s (%s)' % (' '*24,','.join(sorted(['-','--'][int(len(alias)>1)]+alias for alias in param['aliases'])))
             print ''
+        self.__print_general_parameters()
         self.interruptexit()
 
     def parse(self,args) :
