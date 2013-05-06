@@ -16,8 +16,10 @@ simple example :
 ----------------
 
 Imagine, you've got a simple class that make tasks, and you want to make a command line tool
-with that. Let's say, it's a calculator module ``calclib.py``::
-    
+with that. Let's say, it's a calculator module ``calclib.py``
+
+.. code:: python
+
     #:/usr/bin/env python
     
     class Calc(object) :
@@ -28,7 +30,9 @@ with that. Let's say, it's a calculator module ``calclib.py``::
         def mult(self, value1, value2) :
             return value1*value2
 
-Then, we will write a simple class and transform into a runnable tool::
+Then, we will write a simple class and transform into a runnable tool
+
+.. code:: python
 
     #!/usr/bin/env python
     
@@ -108,7 +112,3 @@ Now we can test our command line tool::
 
 Note that the help is aumatically generate based on commands declared in the class, 
 and the online doc attached to the class and methods.
-
-
-
-
