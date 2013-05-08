@@ -189,3 +189,11 @@ class CLRunnable(object) :
             return True
         return True
 
+    @classmethod
+    def main(cls, *args, **kwargs) :
+        instance = cls(*args, **kwargs)
+        if not(instance.run( sys.argv )) :
+            sys.exit(1)
+
+
+
